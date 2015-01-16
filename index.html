@@ -1,0 +1,135 @@
+<html>
+    <head>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular-resource.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular-route.js"></script>
+    </head>
+    
+     <body ng-app="jgModule">
+        <div ng-view>
+        </div>
+    </body>
+
+
+     <script>
+        var jgModule = angular.module("jgModule", ["ngResource", "ngRoute"]);
+      
+        jgModule.config(function($routeProvider){
+        $routeProvider
+          .when('/todo/:id', {
+            templateUrl:'details.html',
+            controller:'todoDetailController',
+            })
+         .when('/', {
+            templateUrl:'main.html',
+            controller:'todoController'
+            })
+          .otherwise({ redirectTo:'/'});
+        });
+      
+        jgModule.controller("todoDetailController", function($scope, $routeParams){
+            
+                            
+            $scope.todo = { id:$routeParams.id, title:"title", description:"descuiprioptn"};
+            
+        });
+        
+        
+        
+        jgModule.controller("todoController", function($scope, $filter, todoservice) {
+            
+            $scope.$on("newdata", function (event, args){
+                console.log("new data" + args);
+                $scope.todos = args; 
+                });
+            
+            $scope.$on("newitem", function (event, args){
+              console.log("new item" + args);
+                });
+            
+            $scope.editIndex = -1;
+            $scope.todoEdit = {};
+            $scope.order = "title";
+            $scope.todos = todoservice.getTodos();
+          
+            $scope.addTodo = function () {
+                var todoNew = angular.copy($scope.todo);
+                todos.save(todoNew);
+                      $scope.todos.push(angular.copy($scope.todo));
+                      $scope.todo = {};
+              
+            };
+            
+            $scope.deleteTodo = function(index) {
+                $scope.todos[index].$delete();
+                $scope.todos.splice(index,1);
+                
+            }
+             $scope.editTodo = function(index) {
+                
+                $scope.editIndex = index;
+                $scope.todoEdit = angular.copy($scope.todos[index]);
+                
+            }
+            
+             $scope.saveTodo = function(index) {
+                
+                $scope.editIndex = -1;
+                $scope.todos[index] = angular.copy($scope.todoEdit);
+                $scope.todos[index].$update(); 
+                $scope.todoEdit = {};
+                
+                
+            }
+            $scope.cancelEdit = function(index) {
+                
+                $scope.editIndex = -1;
+                $scope.todoEdit = {};
+                
+                
+            }
+
+            
+            $scope.log = function() { console.log($scope.name);}
+            
+        });
+        
+        jgModule.run(function(todoservice){
+            todoservice.init();
+        });      
+   
+        jgModule.service("todoservice", function($interval, $rootScope, $resource){
+            var todos = $resource("/todos/:id", { id: "@id" }, { update: { method:"PUT"}});
+            var self = this;
+             
+            this.todos = [];
+            
+            this.init = function() {
+                
+                $interval(function(){
+                    $rootScope.$broadcast("newitem", "tick");
+                    }, 10000000000);
+                
+                todos.query(function(data) {
+                    self.todos = data;
+                    $rootScope.$broadcast("newdata", data);
+                });
+            }; 
+            this.getTodos  = function () {
+                return self.todos;
+            };
+            
+            this.getTodo = function (id) {
+                for (t in self.todos) {
+                    if (self.todos[t].id == id) {
+                        return self.todos[t];
+                    }
+                }
+                return {};
+                
+            }
+        });
+    </script>
+    
+   
+</html>

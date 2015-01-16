@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html ng-app="jgModule">
+<head>
+    <title>Page Title</title>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.8/angular.js"></script>
+
+</head>
+<style>
+    form .ng-valid { background-color:green}
+    form .ng-invalid.ng-touched { background-color:red}
+</style>
+<body>
+
+  <form name="myform" novalidate ng-submit="showResult()" ng-controller="mainCtrl">
+    <select ng-model="selectedColor" ng-options="c for c in colors">
+    </select>
+    <input type="text" ng-model="firstname" name="voornaam" required></input>
+    <span ng-show="myform.voornaam.$touched && myform.voornaam.$error.required">Dit is een verplicht veld!</span>
+    <span ng-show="myform.voornaam.$dirty && myform.voornaam.$error.minlength">Te kort!</span>
+    <span ng-show="myform.$submitted">Verzonden!</span>
+    
+    
+    <input type="submit" value="save" ng-disabled="myform.$invalid">
+        
+        
+    </input>
+  </form>
+  
+  <script>
+    var jgModule = angular.module("jgModule", []);
+    jgModule.controller("mainCtrl", function($scope){
+        $scope.colors = ["Red", "Green", "Blue", "Yellow"];
+        $scope.selectedColor = "Green";
+        $scope.firstname = "";
+        $scope.reset = function($event) {
+            console.log("try resetting");
+            if ($event.keyCode == 27){
+                console.log("resetting");
+                $scope.myform.voornaam.$rollbackViewValue();
+            }
+        };
+        $scope.showResult = function(){
+            console.log($scope.selectedColor);
+            };
+        });
+    
+  </script>
+
+</body>
+</html>

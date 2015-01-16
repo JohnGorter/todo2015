@@ -1,0 +1,32 @@
+       <style>
+        .first { background-color:red;}
+       </style>
+       <h1>Todo List</h1>
+       <hr/>
+       
+       <input type="text" value="" ng-model="filexp"></input>
+       
+       <div>
+        <table>
+            <tr><td ng-click="order = 'title'">Title</td><td ng-click="order = 'description'">Description</td></tr>
+            <tr ng-repeat="todo in todos | orderBy:order | filter : filexp" ng-class="{first:$middle}">
+                
+                <td ng-if="editIndex != $index"><a href="#/todo/{{todo.id}}">{{ todo.title }}</a></td>
+                <td ng-if="editIndex != $index">{{ todo.description}}</td>
+                                
+                <td ng-if="editIndex == $index"><input type="text" ng-model="todoEdit.title"></input></td>
+                <td ng-if="editIndex == $index"><input type="text" ng-model="todoEdit.description"></input></td>
+                
+                <td ng-if="editIndex != $index">
+                    <button ng-click="editTodo($index)">Edit</button>
+                    <button ng-click="deleteTodo($index)">delete</button>
+                </td>
+                <td ng-if="editIndex == $index">
+                    <button ng-click="saveTodo($index)">Save</button>
+                    <button ng-click="cancelEdit($index)">Cancel</button>
+                </td>
+            </tr>
+        </table>
+        Title <input type="text" ng-model="todo.title"></input><br/>
+        Description <input type="text" ng-model="todo.description"></input><br/>
+        <button ng-click="addTodo()" >Add todo</button>
